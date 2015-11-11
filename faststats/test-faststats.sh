@@ -5,7 +5,7 @@ cd $(dirname $(readlink -f $0))
 CMDNAME=$(basename $0)
 info() { (echo "${CMDNAME}[INFO] $@" >&2) }
 
-TEST_DIR='/tmp/faststats_test'
+TEST_DIR='/tmp/fs-test'
 REAL="${TEST_DIR}/real"
 FAKE="${TEST_DIR}/fake"
 STATS_XML="stats.xml"
@@ -23,7 +23,7 @@ echo "also changes" >"${REAL}/${STATS_SIG}"
 info "faststats setup"
 export REAL_DIR="${REAL}"
 export FAKE_DIR="${FAKE}"
-. ./faststats_setup.sh
+. fs-init.sh
 
 # define test updates
 append() { (echo "$1 change $2" | tee -a "${FAKE}/$1") }

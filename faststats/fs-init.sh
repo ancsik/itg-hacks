@@ -29,4 +29,5 @@ do BASE=$(basename ${FILE}); symlink "${TEMP_DIR}/${BASE}" "${REAL_DIR}/${BASE}"
 done
 
 # copy the real stats.xml* files into memory
-cp "${REAL_DIR}/stats.xml"* "${TEMP_DIR}"
+FILES='stats.xml stats.xml.sig'
+for F in ${FILES}; do cp "${REAL_DIR}/${F}" "${TEMP_DIR}/${F}"; done
