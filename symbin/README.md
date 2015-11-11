@@ -2,9 +2,9 @@
 easy "install to PATH" via symlinks
 
 ### setup
-###### symbin-setup.sh [SYMBIN_DIR = ~/sym-bin]
+###### symbin-setup.sh [SYMBIN_DIR]
  1. configures current user's .bashrc to support symbin
- 2. SYMBIN_DIR will be added to PATH
+ 2. SYMBIN_DIR (default: ~/sym-bin) will be added to PATH
  3. 'symbin' and 'symbin-rm' will be symlinked from SYMBIN_DIR (by running symbin on itself, lol)
 
 ### adding commands
