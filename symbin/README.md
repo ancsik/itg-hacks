@@ -11,7 +11,7 @@ easy "install to PATH" via symlinks
 ###### symbin path/to/exec \[...]
  1. links ${SYMBIN_DIR}/exec to the original executable
  2. .sh extension will be stripped (cmd.sh -> cmd)
- 3. conflicts
+ 3. conflicts are handled by the 'ln' command's default keep-the-old behavior
 
 ### removing commands
 ###### symbin-rm cmd \[...]
