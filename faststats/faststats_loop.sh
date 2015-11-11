@@ -22,7 +22,7 @@ wait_upd() {
   while [ ${OLD} == ${NEW} ]; do sleep 1; NEW=$(last_upd "$1"); done
   UPDATED[${1}]=${NEW}
 }
-wait_on_write() {
+watch_file() {
   while fresh $1; do
     inotifywait --timeout 60 -e close_write "${TEMP_DIR}/$1" >&2
     [ $? == 0 ] && return 0
@@ -30,14 +30,14 @@ wait_on_write() {
 }
 
 # copy to temp location on disk
-to_disk() { (cp "${TEMP_DIR}/${1}" "${REAL_DIR}/.${1}.tmp") }
-# move to correct file names on disk
-finalize() { (mv "${REAL_DIR}/.${1}.tmp" "${REAL_DIR}/${1}") }
+diskcopy() { (cp "${TEMP_DIR}/${1}" "${REAL_DIR}/.${1}.tmp") }
+# move to correct file names on disk (and back up existing versions)
+finalize() { (F="${REAL_DIR}/${1}"; ln -f "${F}" "${F}.bak"; mv "${F}.tmp" "${F}") }
 
 # loop until killed
 while true; do
-  wait_on_write 'stats.xml'
+  watch_file 'stats.xml'
   foreach wait_upd ${FILES}
-  foreach  to_disk ${FILES}
+  foreach diskcopy ${FILES}
   foreach finalize ${FILES}
 done
