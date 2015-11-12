@@ -1,5 +1,5 @@
 # usbhelper
-figures out usb port config for ITG by having you just plug in a damn USB drive
+figures out usb port config for ITG by having you just *plug in a damn USB drive*
 
 #### usage:
 ###### usbhelper.sh \[FILE]
