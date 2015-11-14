@@ -1,39 +1,40 @@
 #!/bin/bash
 
-TMP=$(date +/tmp/usbhelper.%s.%N)
 OUT=$1
 
 error() { (echo "ERROR: $@" >&2) }
+do_read() { (read -rsp "$1, then press any key"$'\n' -n1 key) }
 
-get_usbdevs() { (ls -d /sys/bus/usb/devices/*-* | grep -v ':') }
-usbdevs() { (for D in $(get_usbdevs); do echo $(basename ${D}); done) }
+USB_BUS='/sys/bus/usb/devices'
+GREP='^[0-9][0-9]?-[0-9][0-9]?$'
+usbdevs() { (ls ${USB_BUS} | grep -e "${GREP}") }
 prompt() {
-  read -rsp "insert [P$1] USB drive, then press any key"$'\n' -n1 key
+  do_read "insert [P$1] USB drive"
   ATTEMPTS=5
   while [ ${ATTEMPTS} -gt 0 ]; do
     ATTEMPTS=$((ATTEMPTS - 1))
-    sleep 2
-    NEW=$(usbdevs | grep -vx -f ${TMP})
+    NEW=$(usbdevs | grep -v -F "${INIT}")
     if [ ${NEW} ]; then
       if [ $(echo ${NEW} | wc -w) == 1 ]
       then echo ${NEW} && return 0
       else error 'multiple new devices found' && return 1
       fi
     fi
+    sleep 2
   done
   error 'no new device found after 5 tries' && return 1
 }
 bindings() {
-  BUS_PORT=$(prompt $1 | tr '-' ' ')
-  [ "${BUS_PORT}" ] || return 1
-  BUS=$(echo ${BUS_PORT} | awk '{ print $1 }')
-  PORT=$(echo ${BUS_PORT} | awk '{ print $2 }')
+  DEV=$(prompt $1)
+  [ "${DEV}" ] || return 1
+  BNUM=$(cat "${USB_BUS}/busnum")
+  PNUM=$(cat "${USB_BUS}/devpath")
   tee -a ${OUT} <<[BINDINGS]
-MemoryCardUsbBusP$1=${BUS}
+MemoryCardUsbBusP$1=${BNUM}
 MemoryCardUsbLevelP$1=-1
-MemoryCardUsbPortP$1=${PORT}
+MemoryCardUsbPortP$1=${PNUM}
 [BINDINGS]
 }
 
-usbdevs >${TMP} && bindings 1 && bindings 2
-rm ${TMP}
+do_read "make sure both memory card ports are open"
+INIT="$(usbdevs)" && bindings 1 && bindings 2

@@ -14,7 +14,7 @@ cat >> ${BASHRC_PATH} <<[BASHRC]
 
 ###  [symbin]  ###
 export SYMBIN_DIR=\'${SYMBIN_DIR}\'
-export PATH="\${SYMBIN_DIR}:${PATH}"
+export PATH="\${SYMBIN_DIR}:\${PATH}"
 ###  [symbin]  ###
 
 [BASHRC]

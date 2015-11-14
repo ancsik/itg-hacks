@@ -1,21 +1,23 @@
 #!/bin/bash
 
-SONGLIST=
-TMP=$(date +/tmp/prefsongs.%s.%N)
+SONGLIST='/tmp/songs'
 
 CMDNAME=$(basename $0)
 # log failure and exit
-fail() { (echo "${CMDNAME}[FAIL] $@" >&2; exit 1) }
+usage() { (echo "${CMDNAME}[FAIL] usage: ${CMDNAME} {add,rm} PACK/SONG [PACK/SONG [...]]
+  => actual: ${CMDNAME} $@" >&2; exit 1) }
 
 # args
-if [ $1 -ne 'add' ] && [ $1 -ne 'rm' ] && ! [ $2 ]; then
-  fail "usage: ${CMDNAME} {add,rm} PACK/SONG [PACK/SONG [...]]
-  => actual: ${CMDNAME} $@"
-fi
+[ "$1" == 'add' ] || [ "$1" == 'rm' ] || usage "$@"
+[ "$2" ] || usage "$@"
 OP=$1; shift
-for S in $@; do echo ${S%/} >> ${TMP}; done
+SONGS=$(IFS=$'\n'; for S in $@; do echo "${S%/}"; done)
 
 # operations
-[ ${OP} == 'add' ] && cat ${SONGLIST} ${TMP} | sort | uniq > ${SONGLIST}
-[ ${OP} == 'rm'  ] && grep -vx -f ${TMP} ${SONGLIST} | sort | uniq > ${SONGLIST}
-rm ${TMP}
+if [ "${OP}" == 'add' ]; then
+  echo "${SONGS}" >> "${SONGLIST}"
+  cat "${SONGLIST}" | sort -t $'\n' | uniq | tee "${SONGLIST}"
+fi
+if [ "${OP}" == 'rm' ]; then
+  grep -vx -F "${SONGS}" "${SONGLIST}" | sort -t $'\n' | tee "${SONGLIST}"
+fi

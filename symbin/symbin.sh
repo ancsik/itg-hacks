@@ -7,13 +7,13 @@ fail() { (echo "${CMDNAME}[FAIL] $@" >&2; exit 1) }
 deref() { ([ $1 ] || fail "deref <PATH>"; readlink -f $1) }
 # canonical+absolute path symlinks
 symlink() { [ $2 ] || fail "symlink() <SYM> <FILE>"
-  SYM="$(deref $1)"; FILE="$(deref $2)"; info "symlink: ${SYM} => ${FILE}"
+  SYM="$(deref $1)"; FILE="$(deref $2)"; echo "symlink: ${SYM} => ${FILE}"
   ln -s ${FILE} ${SYM}
 }
 
 # env check
-[ ${SYMBIN_DIR} ] || fail "run symbin-setup.sh first"
+[ "${SYMBIN_DIR}" ] || fail "run symbin-setup.sh first"
 # arg check
 [ $1 ] || fail "usage: symbin path/to/exec [...]"
 
-for EXEC in $@; do symlink ${SYMBIN_DIR}/$(basename ${EXEC%.sh}) ${EXEC}; done
+for EXEC in $@; do symlink "${SYMBIN_DIR}/$(basename ${EXEC%.sh})" "${EXEC}"; done
