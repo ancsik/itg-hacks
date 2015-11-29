@@ -6,10 +6,11 @@ fail() { (echo "${CMDNAME}[FAIL] $@" >&2; exit 1) }
 foreach() { CMD=$1; shift; for X in $@; do ${CMD} ${X}; done }
 
 # config
-[ ${REAL_DIR} ] || fail "REAL_DIR not set"
-[ ${TEMP_DIR} ] || fail "TEMP_DIR not set"
-[ -f "${TEMP_DIR}/stats.xml" ] || fail "no stats.xml in ${TEMP_DIR}"
-FILES='stats.xml stats.xml.sig'
+STATS_XML='stats.xml'
+FILES="${STATS_XML} stats.xml.sig"
+[ ${REAL_DIR} ] || fail "env REAL_DIR not set"
+[ ${TEMP_DIR} ] || fail "env TEMP_DIR not set"
+[ -f "${TEMP_DIR}/${STATS_XML}" ] || fail "no ${STATS_XML} in ${TEMP_DIR}"
 
 # update timestamps
 last_upd() { (stat -c %Z "${TEMP_DIR}/$1") }
@@ -29,15 +30,20 @@ watch_file() {
   done
 }
 
-# copy to temp location on disk
-diskcopy() { (cp "${TEMP_DIR}/${1}" "${REAL_DIR}/.${1}.tmp") }
+# copy directly to temp location on disk
+direct_copy() { (cp "${TEMP_DIR}/${1}" "${REAL_DIR}/.${1}.tmp") }
+# run cleanstats in lieu of a straight copy
+clean_copy() { ${CLEANSTATS_SH} "${TEMP_DIR}/${1}" > "${REAL_DIR}/.${1}.tmp" }
+# pick which copy func to use
+do_clean() { ([ "${CLEANSTATS_SH}" ] && [ "${1}" == "${STATS_XML}" ]) }
+copyfile() { (do_clean && clean_copy $1 || direct_copy $1) }
 # move to correct file names on disk (and back up existing versions)
 finalize() { (F="${REAL_DIR}/${1}"; ln -f "${F}" "${F}.bak"; mv "${F}.tmp" "${F}") }
 
 # loop until killed
 while true; do
-  watch_file 'stats.xml'
+  watch_file ${STATS_XML}
   foreach wait_upd ${FILES}
-  foreach diskcopy ${FILES}
+  foreach copyfile ${FILES}
   foreach finalize ${FILES}
 done

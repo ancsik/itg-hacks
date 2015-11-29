@@ -9,6 +9,8 @@ faster score saving at end of set (for when big stats.xml files slow you down)
  1. mv your MachineProfile to $REAL_DIR
  2. FAKE_DIR should be the original MachineProfile path (faststats creates $FAKE_DIR for you)
  3. use absolute paths for both for simplicity
+###### optionally set CLEANSTATS_SH to point to cleanstats.sh
+ 1. this will switch from direct copying to automatically cleaning Stats.xml on each save
 
 ###### in your ITG boot script, run faststats (as bg job: 'faststats.sh&') before starting ITG itself
  1. faststats can handle ITG rebooting
