@@ -3,7 +3,6 @@
 SONGLIST='/tmp/songs'
 
 CMDNAME=$(basename $0)
-# log failure and exit
 usage() { (echo "${CMDNAME}[FAIL] usage: ${CMDNAME} {add,rm} PACK/SONG [PACK/SONG [...]]
   => actual: ${CMDNAME} $@" >&2; exit 1) }
 
